@@ -110,6 +110,8 @@ export type AuthKitLoaderOptions = {
     }
 );
 
+export type AuthKitActionOptions = AuthKitLoaderOptions;
+
 export interface AuthorizedData {
   user: User;
   sessionId: string;
