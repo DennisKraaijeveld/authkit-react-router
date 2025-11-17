@@ -31,6 +31,8 @@ export class SessionRefreshError extends Error {
   }
 }
 
+const JWKS = createRemoteJWKSet(new URL(getWorkOS().userManagement.getJwksUrl(getConfig('clientId'))));
+
 /**
  * This function is used to refresh the session by using the refresh token.
  * It will authenticate the user with the refresh token and return a new session object.
@@ -792,7 +794,6 @@ export async function getSessionFromCookie(cookie: string, session?: SessionData
 }
 
 async function verifyAccessToken(accessToken: string) {
-  const JWKS = createRemoteJWKSet(new URL(getWorkOS().userManagement.getJwksUrl(getConfig('clientId'))));
   try {
     await jwtVerify(accessToken, JWKS);
     return true;
