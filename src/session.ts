@@ -31,7 +31,14 @@ export class SessionRefreshError extends Error {
   }
 }
 
-const JWKS = createRemoteJWKSet(new URL(getWorkOS().userManagement.getJwksUrl(getConfig('clientId'))));
+let jwksSingleton: ReturnType<typeof createRemoteJWKSet> | null = null;
+
+function getJWKS() {
+  if (!jwksSingleton) {
+    jwksSingleton = createRemoteJWKSet(new URL(getWorkOS().userManagement.getJwksUrl(getConfig('clientId'))));
+  }
+  return jwksSingleton;
+}
 
 /**
  * This function is used to refresh the session by using the refresh token.
@@ -795,7 +802,7 @@ export async function getSessionFromCookie(cookie: string, session?: SessionData
 
 async function verifyAccessToken(accessToken: string) {
   try {
-    await jwtVerify(accessToken, JWKS);
+    await jwtVerify(accessToken, getJWKS());
     return true;
   } catch (e) {
     return false;
