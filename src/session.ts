@@ -18,6 +18,8 @@ import { getConfig } from './config.js';
 import { configureSessionStorage, getSessionStorage } from './sessionStorage.js';
 import { isDataWithResponseInit, isJsonResponse, isRedirect, isResponse } from './utils.js';
 
+const TOKEN_EXPIRATION_BUFFER_SECONDS = 30;
+
 // must be a type since this is a subtype of response
 // interfaces must conform to the types they extend
 export type TypedResponse<T> = Response & {
@@ -801,6 +803,12 @@ export async function getSessionFromCookie(cookie: string, session?: SessionData
 }
 
 async function verifyAccessToken(accessToken: string) {
+  const decodedToken = decodeJwt(accessToken);
+
+  const now = Math.floor(Date.now() / 1000);
+  if (decodedToken.exp && decodedToken.exp > now + TOKEN_EXPIRATION_BUFFER_SECONDS) {
+    return true;
+  }
   try {
     await jwtVerify(accessToken, getJWKS());
     return true;
