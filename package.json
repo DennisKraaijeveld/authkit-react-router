@@ -1,6 +1,6 @@
 {
   "name": "@denniskraaijeveld/authkit-react-router",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "Authentication and session helpers for using WorkOS & AuthKit with React Router 7+",
   "sideEffects": false,
   "type": "commonjs",
