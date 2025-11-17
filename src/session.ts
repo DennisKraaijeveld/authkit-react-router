@@ -13,12 +13,10 @@ import type {
 import { getWorkOS } from './workos.js';
 
 import { sealData, unsealData } from 'iron-session';
-import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
+import { decodeJwt } from 'jose';
 import { getConfig } from './config.js';
 import { configureSessionStorage, getSessionStorage } from './sessionStorage.js';
 import { isDataWithResponseInit, isJsonResponse, isRedirect, isResponse } from './utils.js';
-
-const TOKEN_EXPIRATION_BUFFER_SECONDS = 30;
 
 // must be a type since this is a subtype of response
 // interfaces must conform to the types they extend
@@ -31,15 +29,6 @@ export class SessionRefreshError extends Error {
     super('Session refresh error', { cause });
     this.name = 'SessionRefreshError';
   }
-}
-
-let jwksSingleton: ReturnType<typeof createRemoteJWKSet> | null = null;
-
-function getJWKS() {
-  if (!jwksSingleton) {
-    jwksSingleton = createRemoteJWKSet(new URL(getWorkOS().userManagement.getJwksUrl(getConfig('clientId'))));
-  }
-  return jwksSingleton;
 }
 
 /**
@@ -112,6 +101,8 @@ export async function refreshSession(request: Request, { organizationId }: { org
   }
 }
 
+const TOKEN_EXPIRATION_BUFFER_SECONDS = 30;
+
 async function updateSession(request: Request, debug: boolean) {
   const session = await getSessionFromCookie(request.headers.get('Cookie') as string);
   const { commitSession, getSession } = await getSessionStorage();
@@ -121,9 +112,16 @@ async function updateSession(request: Request, debug: boolean) {
     return null;
   }
 
-  const hasValidSession = await verifyAccessToken(session.accessToken);
+  let claims: ReturnType<typeof getClaimsFromAccessToken> | null = null;
 
-  if (hasValidSession) {
+  try {
+    claims = getClaimsFromAccessToken(session.accessToken);
+  } catch (error) {
+    // istanbul ignore next
+    if (debug) console.log('Failed to decode access token. Attempting refresh.', error);
+  }
+
+  if (claims && !isAccessTokenExpired(claims.exp)) {
     // istanbul ignore next
     if (debug) console.log('Session is valid');
     return session;
@@ -131,9 +129,14 @@ async function updateSession(request: Request, debug: boolean) {
 
   try {
     // istanbul ignore next
-    if (debug) console.log(`Session invalid. Refreshing access token that ends in ${session.accessToken.slice(-10)}`);
+    if (debug) {
+      const reason = claims ? 'expired' : 'undecodable';
+      console.log(
+        `Session invalid (${reason}). Refreshing access token that ends in ${session.accessToken.slice(-10)}`,
+      );
+    }
 
-    const { organizationId } = getClaimsFromAccessToken(session.accessToken);
+    const { organizationId } = claims ?? {};
     // If the session is invalid (i.e. the access token has expired) attempt to re-authenticate with the refresh token
     const { accessToken, refreshToken, user, impersonator } =
       await getWorkOS().userManagement.authenticateWithRefreshToken({
@@ -802,19 +805,13 @@ export async function getSessionFromCookie(cookie: string, session?: SessionData
   }
 }
 
-async function verifyAccessToken(accessToken: string) {
-  const decodedToken = decodeJwt(accessToken);
+function isAccessTokenExpired(expiration?: number | null) {
+  if (!expiration) {
+    return true;
+  }
 
-  const now = Math.floor(Date.now() / 1000);
-  if (decodedToken.exp && decodedToken.exp > now + TOKEN_EXPIRATION_BUFFER_SECONDS) {
-    return true;
-  }
-  try {
-    await jwtVerify(accessToken, getJWKS());
-    return true;
-  } catch (e) {
-    return false;
-  }
+  const nowInSeconds = Math.floor(Date.now() / 1000);
+  return expiration <= nowInSeconds + TOKEN_EXPIRATION_BUFFER_SECONDS;
 }
 
 function getReturnPathname(url: string): string {
