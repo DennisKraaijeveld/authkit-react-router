@@ -10,13 +10,13 @@ The AuthKit library for React Router 7+ provides convenient helpers for authenti
 Install the package with:
 
 ```
-npm i @workos-inc/authkit-react-router
+npm i @denniskraaijeveld/authkit-react-router
 ```
 
 or
 
 ```
-yarn add @workos-inc/authkit-react-router
+yarn add @denniskraaijeveld/authkit-react-router
 ```
 
 ## Configuration
@@ -39,7 +39,7 @@ AuthKit for React Router offers a flexible configuration system that allows you 
 You can also configure AuthKit programmatically by importing the `configure` function:
 
 ```typescript
-import { configure } from '@workos-inc/authkit-react-router';
+import { configure } from '@denniskraaijeveld/authkit-react-router';
 // In your root or entry file
 configure({
   clientId: 'client_1234567890',
@@ -62,7 +62,7 @@ For non-standard environments (like Deno or Edge functions), you can provide a c
 >While this library includes support for custom environment sources that could theoretically work in non-Node.js runtimes like Deno or Edge functions, this functionality has not been extensively tested (yet). If you're planning to use AuthKit in these environments, you may encounter unexpected issues. We welcome feedback and contributions from users who test in these environments.
 
 ```typescript
-import { configure } from '@workos-inc/authkit-react-router';
+import { configure } from '@denniskraaijeveld/authkit-react-router';
 
 configure(key => Deno.env.get(key));
 // Or combine with explicit values
@@ -109,7 +109,7 @@ When retrieving configuration values, AuthKit follows this priority order:
 AuthKit requires that you have a callback URL to redirect users back to after they've authenticated. In your React Router app, [create a new route](https://reactrouter.com/start/framework/routing) and add the following:
 
 ```ts
-import { authLoader } from '@workos-inc/authkit-react-router';
+import { authLoader } from '@denniskraaijeveld/authkit-react-router';
 
 export const loader = authLoader();
 ```
@@ -140,7 +140,7 @@ Use `authkitLoader` to configure AuthKit for your React Router application route
 
 ```tsx
 import { type LoaderFunctionArgs, useLoaderData } from 'react-router';
-import { authkitLoader } from '@workos-inc/authkit-react-router';
+import { authkitLoader } from '@denniskraaijeveld/authkit-react-router';
 
 export const loader = (args: LoaderFunctionArgs) => authkitLoader(args);
 
@@ -169,7 +169,7 @@ import type {
   Link,
   useLoaderData
 } from 'react-router';
-import { getSignInUrl, getSignUpUrl, signOut, authkitLoader } from '@workos-inc/authkit-react-router';
+import { getSignInUrl, getSignUpUrl, signOut, authkitLoader } from '@denniskraaijeveld/authkit-react-router';
 
 export const loader = (args: LoaderFunctionArgs) =>
   authkitLoader(args, async ({ request, auth }) => {
@@ -234,7 +234,7 @@ Access tokens are available through the `getAccessToken()` function within your 
 
 ```tsx
 import { data, type LoaderFunctionArgs } from 'react-router';
-import { authkitLoader } from '@workos-inc/authkit-react-router';
+import { authkitLoader } from '@denniskraaijeveld/authkit-react-router';
 
 export const loader = (args: LoaderFunctionArgs) =>
   authkitLoader(args, async ({ auth, getAccessToken }) => {
@@ -312,7 +312,7 @@ For advanced use cases, the `withAuth` function provides direct access to authen
 - Requires manual redirect handling for unauthenticated users
 
 ```tsx
-import { withAuth } from '@workos-inc/authkit-react-router';
+import { withAuth } from '@denniskraaijeveld/authkit-react-router';
 import { redirect, type LoaderFunctionArgs } from 'react-router';
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -351,7 +351,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 To enable debug logs, pass in the debug flag when using `authkitLoader`.
 
 ```ts
-import { authkitLoader } from '@workos-inc/authkit-react-router';
+import { authkitLoader } from '@denniskraaijeveld/authkit-react-router';
 
 export const loader = (args: LoaderFunctionArgs) => authkitLoader(args, { debug: true });
 ```
@@ -359,7 +359,7 @@ export const loader = (args: LoaderFunctionArgs) => authkitLoader(args, { debug:
 If providing a loader function, you can pass the options object as the third parameter
 
 ```ts
-import { authkitLoader } from '@workos-inc/authkit-react-router';
+import { authkitLoader } from '@denniskraaijeveld/authkit-react-router';
 
 export const loader = (args: LoaderFunctionArgs) =>
   authkitLoader(
@@ -393,7 +393,7 @@ You can provide your own session storage implementation to both `authkitLoader` 
 
 ```typescript
 import { createMemorySessionStorage } from "@react-router/node";
-import { authkitLoader, authLoader } from "@workos-inc/authkit-react-router";
+import { authkitLoader, authLoader } from "@denniskraaijeveld/authkit-react-router";
 
 // Create memory-based session storage
 const memoryStorage = createMemorySessionStorage({

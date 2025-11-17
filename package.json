@@ -1,5 +1,5 @@
 {
-  "name": "@workos-inc/authkit-react-router",
+  "name": "@denniskraaijeveld/authkit-react-router",
   "version": "0.9.0",
   "description": "Authentication and session helpers for using WorkOS & AuthKit with React Router 7+",
   "sideEffects": false,
@@ -58,12 +58,12 @@
     "typescript-eslint": "^7.2.0"
   },
   "license": "MIT",
-  "homepage": "https://github.com/workos/authkit-react-router#readme",
+  "homepage": "https://github.com/DennisKraaijeveld/authkit-react-router#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/workos/authkit-react-router.git"
+    "url": "git+https://github.com/DennisKraaijeveld/authkit-react-router.git"
   },
   "bugs": {
-    "url": "https://github.com/workos/authkit-react-router/issues"
+    "url": "https://github.com/DennisKraaijeveld/authkit-react-router/issues"
   }
 }
